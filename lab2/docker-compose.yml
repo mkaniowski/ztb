@@ -1,0 +1,39 @@
+version: '3.9'
+name: adv-db
+
+volumes:
+  postgres-data:
+  postgis-data:
+
+services:
+  postgis:
+    image: adv-db.postgis
+    container_name: adv-db.postgis
+    build:
+      context: .
+      dockerfile: Dockerfile-postgis
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./data:/data
+      - ./sql:/sql
+      - ./postgis-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  osm2pgsql:
+    image: iboates/osm2pgsql:latest
+    container_name: adv-db.osm2pgsql
+    pull_policy:
+      build
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./data:/data
+      - ./sql:/sql
+      - ./postgis-data:/var/lib/postgresql/data
+    entrypoint: sleep infinity
+    restart: unless-stopped
